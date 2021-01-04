@@ -1,0 +1,24 @@
+[package]
+name = "rust_sokoban"
+version = "0.0.1"
+authors = ["Kamil Duda <contact@kamilduda.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# game engine
+# https://docs.rs/ggez/latest/ggez/
+ggez = "0.5.1"
+
+# ECS
+# https://docs.rs/specs/latest/specs/
+specs = { version = "0.16.1", features = ["specs-derive"] }
+
+# logging
+log = "0.4.11"
+env_logger = "0.8.2"
+
+# errors
+# https://docs.rs/quick-error/latest/quick_error/
+quick-error = "2.0.0"
