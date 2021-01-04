@@ -1,11 +1,16 @@
+use std::collections::HashMap;
+
+use ggez::{audio, Context};
 use log::*;
 use specs::World;
+use specs::WorldExt;
 
-use crate::component::*;
 use crate::component::box_colour::BoxColour;
 use crate::component::position::Position;
+use crate::component::*;
 use crate::entity;
 use crate::entity::{crate_obj, crate_spot, floor, player, wall};
+use crate::resource::{SoundsStore, GameSounds};
 
 pub const TILE_EDGE_SIZE: usize = 64;
 
@@ -68,3 +73,16 @@ fn load_map(world: &mut World, map: &str) {
         }
     }
 }
+
+pub fn initialize_sounds(world: &World, context: &mut Context) {
+    let mut store = world.write_resource::<SoundsStore>();
+    let sounds = [GameSounds::WallHit, GameSounds::CorrectSpot, GameSounds::WrongSpot];
+
+
+    for sound in sounds.iter() {
+        let sound_path = format!("/sounds/{}.wav", sound.value());
+        let audio = audio::Source::new(context, sound_path).expect("Could not load a sound");
+        store.sounds.insert(*sound, audio);
+    }
+}
+

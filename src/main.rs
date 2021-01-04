@@ -15,7 +15,7 @@ pub fn main() -> GameResult {
 
     let (context, event_loop) = &mut context_builder.build()?;
     // Create the game state
-    let sokoban_game = &mut SokobanGame::create();
+    let sokoban_game = &mut SokobanGame::create(context);
     // Run the main event loop
     event::run(context, event_loop, sokoban_game)
 }

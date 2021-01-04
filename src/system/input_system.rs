@@ -9,7 +9,8 @@ use specs::{Entities, Join, Read, ReadStorage, System, Write, WriteStorage};
 use crate::component::position::Position;
 use crate::component::{Immovable, Movable, Player};
 use crate::error::SokobanResult;
-use crate::resource::{GameState, KeyDownQueue, MovesCount};
+use crate::event::GameEvent;
+use crate::resource::{EventQueue, GameState, KeyDownQueue, MovesCount};
 
 trait DirectionMapCheck {
     fn generate(&self) -> BTreeMap<u8, Position>;
@@ -87,6 +88,7 @@ impl<'a> System<'a> for InputSystem {
         Write<'a, MovesCount>,
         ReadStorage<'a, Movable>,
         ReadStorage<'a, Immovable>,
+        Write<'a, EventQueue>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -98,7 +100,9 @@ impl<'a> System<'a> for InputSystem {
             mut moves_count,
             movables,
             immovables,
+            mut event_queue,
         ) = data;
+
         let key_pressed = input_queue.keys.pop_front();
         if key_pressed.is_none() {
             return;
@@ -154,6 +158,7 @@ impl<'a> System<'a> for InputSystem {
                             // (movable, immovable) -> nothing
                             Some(_) => {
                                 info!("Next: immovable");
+                                event_queue.events.push(GameEvent::PlayerHitObstacle);
                                 entities_to_move.clear();
                                 break;
                             }
@@ -172,6 +177,7 @@ impl<'a> System<'a> for InputSystem {
                                     // (movable, movable, immovable) -> nothing
                                     if let Some(_) = all_immovables.get(position_next_plus_one) {
                                         info!("Next plus one: immovable");
+                                        event_queue.events.push(GameEvent::PlayerHitObstacle);
                                         entities_to_move.clear();
                                         break;
                                     }
@@ -179,6 +185,7 @@ impl<'a> System<'a> for InputSystem {
                                     // (movable, movable, movable) -> nothing
                                     if let Some(_) = all_movables.get(position_next_plus_one) {
                                         info!("Next plus one: movable");
+                                        event_queue.events.push(GameEvent::PlayerHitObstacle);
                                         entities_to_move.clear();
                                         break;
                                     }
@@ -216,6 +223,8 @@ impl<'a> System<'a> for InputSystem {
                                 _ => {}
                             };
                         }
+
+                        event_queue.events.push(GameEvent::EntityMoved { entity_id })
                     }
 
                     if !entities_to_move.is_empty() {

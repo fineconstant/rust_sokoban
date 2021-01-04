@@ -7,6 +7,7 @@ mod component;
 mod configuration;
 mod entity;
 pub mod error;
+mod event;
 pub mod infrastructure;
 mod resource;
 pub mod sokoban_game;
