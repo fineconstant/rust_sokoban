@@ -1,13 +1,15 @@
-use ggez::Context;
 use ggez::graphics;
 use ggez::graphics::{Color, DrawParam, FilterMode, Image, Text};
 use ggez::nalgebra::Point2;
+use ggez::Context;
 use specs::{Join, Read, ReadStorage, System};
 
 use crate::component::position::Position;
-use crate::component::Renderable;
+use crate::component::renderable::{Renderable, RenderableKind};
 use crate::configuration::TILE_EDGE_SIZE;
-use crate::resource::{MovesCount, SokobanGameState};
+use crate::resource::{DeltaAccumulator, MovesCount, SokobanGameState};
+use std::time::Duration;
+use ggez::mint::IntraXYZ;
 
 pub struct RenderingSystem<'a> {
     context: &'a mut Context,
@@ -20,10 +22,16 @@ impl RenderingSystem<'_> {
 }
 
 impl<'a> System<'a> for RenderingSystem<'a> {
-    type SystemData = (Read<'a, SokobanGameState>, Read<'a, MovesCount>, ReadStorage<'a, Renderable>, ReadStorage<'a, Position>);
+    type SystemData = (
+        Read<'a, SokobanGameState>,
+        Read<'a, MovesCount>,
+        Read<'a, DeltaAccumulator>,
+        ReadStorage<'a, Renderable>,
+        ReadStorage<'a, Position>,
+    );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (game_state, moves_count, renderables, positions) = data;
+        let (game_state, moves_count, delta_acc, renderables, positions) = data;
 
         graphics::clear(self.context, Color::from_rgba(89, 106, 108, 255));
 
@@ -31,8 +39,10 @@ impl<'a> System<'a> for RenderingSystem<'a> {
         rendering_data.sort_by(|&x, &y| x.0.z_index.partial_cmp(&y.0.z_index).unwrap());
 
         rendering_data.iter().for_each(|&(renderable, position)| {
-            let image =
-                Image::new(self.context, renderable.img_path.clone()).expect("Could open an image");
+            let image = self.get_frame(renderable, delta_acc.value);
+
+            // let image =
+            //     Image::new(self.context, renderable.frame(0).clone()).expect("Could open an image");
             let x = (position.point.x * TILE_EDGE_SIZE) as f32;
             let y = (position.point.y * TILE_EDGE_SIZE) as f32;
             let destination = Point2::from([x, y]);
@@ -56,7 +66,24 @@ impl RenderingSystem<'_> {
         let destination = Point2::from([x as f32, y as f32]);
 
         graphics::queue_text(self.context, &text, dimensions, colour);
-        graphics::draw_queued_text(self.context, DrawParam::new().dest(destination), None, FilterMode::Linear)
-            .expect("Cloud not draw text");
+        graphics::draw_queued_text(
+            self.context,
+            DrawParam::new().dest(destination),
+            None,
+            FilterMode::Linear,
+        )
+        .expect("Cloud not draw text");
+    }
+
+    fn get_frame(&mut self, renderable: &Renderable, delta_acc: Duration) -> Image {
+        let idx = match renderable.kind {
+            RenderableKind::Static => 0,
+            RenderableKind::Animated => {
+                let millis_in_second = (delta_acc.as_millis() % 1000);
+                (millis_in_second / 250) as usize
+            }
+        };
+
+        Image::new(self.context, renderable.frame(idx)).expect("Could open an image")
     }
 }

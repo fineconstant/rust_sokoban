@@ -1,19 +1,17 @@
+use std::fmt::Debug;
+
 use specs::{Builder, World, WorldExt};
 
 use crate::component::position::Position;
-use crate::component::{
-    BoxColour, CrateObj, CrateSpot, Immovable, Movable, Player, Renderable, Wall,
-};
-use std::fmt::Debug;
+use crate::component::renderable::Renderable;
+use crate::component::{CrateObj, CrateSpot, Immovable, Movable, Player, Wall};
+use crate::component::box_colour::BoxColour;
 
 pub fn wall(world: &mut World, position: &Position) {
     world
         .create_entity()
         .with(position.clone())
-        .with(Renderable {
-            img_path: "/images/wall.png".to_string(),
-            z_index: 1,
-        })
+        .with(Renderable::new_static("/images/wall.png".to_string(), 1))
         .with(Wall {})
         .with(Immovable {})
         .build();
@@ -23,10 +21,7 @@ pub fn floor(world: &mut World, position: &Position) {
     world
         .create_entity()
         .with(position.clone())
-        .with(Renderable {
-            img_path: "/images/floor.png".to_string(),
-            z_index: 0,
-        })
+        .with(Renderable::new_static("/images/floor.png".to_string(), 0))
         .build();
 }
 
@@ -36,10 +31,7 @@ pub fn crate_obj(world: &mut World, position: &Position, colour: BoxColour) {
     world
         .create_entity()
         .with(position.clone())
-        .with(Renderable {
-            img_path,
-            z_index: 3,
-        })
+        .with(Renderable::new_static(img_path, 3))
         .with(CrateObj { colour })
         .with(Movable {})
         .build();
@@ -51,10 +43,7 @@ pub fn crate_spot(world: &mut World, position: &Position, colour: BoxColour) {
     world
         .create_entity()
         .with(position.clone())
-        .with(Renderable {
-            img_path,
-            z_index: 2,
-        })
+        .with(Renderable::new_static(img_path, 2))
         .with(CrateSpot { colour })
         .build();
 }
@@ -63,10 +52,15 @@ pub fn player(world: &mut World, position: &Position) {
     world
         .create_entity()
         .with(position.clone())
-        .with(Renderable {
-            img_path: "/images/player.png".to_string(),
-            z_index: 4,
-        })
+        .with(Renderable::new_animated(
+            vec![
+                "/images/player_1.png".to_string(),
+                "/images/player_2.png".to_string(),
+                "/images/player_3.png".to_string(),
+                "/images/player_4.png".to_string(),
+            ],
+            4,
+        ))
         .with(Player {})
         .with(Movable {})
         .build();

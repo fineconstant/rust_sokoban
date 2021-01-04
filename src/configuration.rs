@@ -1,10 +1,11 @@
+use log::*;
 use specs::World;
 
 use crate::component::*;
+use crate::component::box_colour::BoxColour;
+use crate::component::position::Position;
 use crate::entity;
 use crate::entity::{crate_obj, crate_spot, floor, player, wall};
-use log::*;
-use crate::component::position::Position;
 
 pub const TILE_EDGE_SIZE: usize = 64;
 

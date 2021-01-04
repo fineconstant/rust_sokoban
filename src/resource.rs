@@ -4,6 +4,7 @@ use specs::World;
 use std::collections::VecDeque;
 use std::fmt::{Display, Formatter};
 use core::fmt;
+use std::time::Duration;
 
 #[derive(Default)]
 pub struct KeyDownQueue {
@@ -46,9 +47,15 @@ impl Display for GameState {
     }
 }
 
+#[derive(Default)]
+pub struct DeltaAccumulator {
+    pub value: Duration,
+}
+
 pub fn register_all(world: &mut World) {
     info!("Registering resources");
     world.insert(KeyDownQueue::default());
     world.insert(MovesCount::default());
     world.insert(SokobanGameState::default());
+    world.insert(DeltaAccumulator::default());
 }
