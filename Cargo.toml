@@ -22,3 +22,7 @@ env_logger = "0.8.2"
 # errors
 # https://docs.rs/quick-error/latest/quick_error/
 quick-error = "2.0.0"
+
+# Extra iterator adaptors, functions and macros
+# https://docs.rs/itertools/latest/itertools/
+itertools = "0.10.0"
