@@ -4,7 +4,8 @@ Sokoban game implementation loosely based on [Rust Sokoban book](https://sokoban
 
 The main objectives were to learn [GGEZ](https://ggez.rs/) game engine, [Specs ECS](https://specs.amethyst.rs/) and polish Rust lang skills.
 
-image::github/screenshot.png[Rust Sokoban screenshot]
+![Rust Sokoban screenshot](github/screenshot.png)
+
 
 ## How to run
 
